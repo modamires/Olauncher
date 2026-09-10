@@ -274,9 +274,30 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
         binding.clock.isVisible = Constants.DateTime.isTimeVisible(prefs.dateTimeVisibility)
         binding.date.isVisible = Constants.DateTime.isDateVisible(prefs.dateTimeVisibility)
 
-//        var dateText = SimpleDateFormat("EEE, d MMM", Locale.getDefault()).format(Date())
-        val dateFormat = SimpleDateFormat("EEE, d MMM", Locale.getDefault())
-        var dateText = dateFormat.format(Date())
+        val persianCalendar = android.icu.util.Calendar.getInstance(
+            android.icu.util.ULocale("fa_IR@calendar=persian")
+        ).apply {
+            timeInMillis = System.currentTimeMillis()
+        }
+
+        val weekdayText = when (persianCalendar.get(android.icu.util.Calendar.DAY_OF_WEEK)) {
+            android.icu.util.Calendar.SATURDAY -> "sh"
+            android.icu.util.Calendar.SUNDAY -> "ye"
+            android.icu.util.Calendar.MONDAY -> "do"
+            android.icu.util.Calendar.TUESDAY -> "se"
+            android.icu.util.Calendar.WEDNESDAY -> "ch"
+            android.icu.util.Calendar.THURSDAY -> "pa"
+            android.icu.util.Calendar.FRIDAY -> "jo"
+            else -> ""
+        }
+
+        val monthText = arrayOf(
+            "far", "ord", "kho", "tir", "mor", "shah",
+            "meh", "aba", "aza", "dey", "bah", "esf"
+        )[persianCalendar.get(android.icu.util.Calendar.MONTH)]
+
+        var dateText =
+            "$weekdayText, ${persianCalendar.get(android.icu.util.Calendar.DAY_OF_MONTH)}, $monthText"
 
         if (!prefs.showStatusBar) {
             val battery = (requireContext().getSystemService(Context.BATTERY_SERVICE) as BatteryManager)
